@@ -35,8 +35,11 @@ It predicts one of these behavior classes:
 
 ```text
 user-behavior-tracker/
+  apps/
+    behavior-collector/
   data/
     raw/
+    segments/
     processed/
   outputs/
     checkpoints/
@@ -83,6 +86,28 @@ user-behavior-tracker/
 6. Export the model to ONNX.
 7. Compare ONNX Runtime outputs with PyTorch outputs.
 
+## Behavior Collector App
+
+This repo now also includes a separate React web app for collecting labeled
+interaction sessions:
+
+- [apps/behavior-collector](/Users/dhanesh/Desktop/p/user-behavior-tracker/apps/behavior-collector)
+
+What it does:
+
+- lets you choose a target behavior label before interacting
+- captures scroll, click, touch, selection, idle, and navigation events
+- supports multiple content pages so navigation behavior can be recorded
+- stores captured sessions in browser local storage
+- can save JSONL directly into `data/raw/` from the browser when supported
+- also provides JSONL download as a fallback
+
+To include that data in training:
+
+1. Use `Save all to repo` in the app and choose `data/raw/`.
+2. Or download the JSONL and place it inside `data/raw/`.
+3. Run [src/preprocess.py](/Users/dhanesh/Desktop/p/user-behavior-tracker/src/preprocess.py) again.
+
 ## Quickstart
 
 Run the project with the local virtual environment:
@@ -95,6 +120,29 @@ Run the project with the local virtual environment:
 ./.venv/bin/python src/stream_inference.py
 ./.venv/bin/python src/export_onnx.py
 ./.venv/bin/python src/test_onnx.py
+```
+
+## Collector App Quickstart
+
+Start the React collector app:
+
+```bash
+cd apps/behavior-collector
+npm install
+npm run dev
+```
+
+Open the local Vite URL, choose a label, start recording, and interact with the
+reader pages. Then use `Save all to repo` and choose `data/raw/`, or download
+the JSONL output and place it there manually.
+
+After collecting sessions, retrain with:
+
+```bash
+cd /Users/dhanesh/Desktop/p/user-behavior-tracker
+python src/preprocess.py
+python src/train.py
+python src/evaluate.py
 ```
 
 ## Training Outputs

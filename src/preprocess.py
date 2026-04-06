@@ -23,7 +23,7 @@ from config import (
     MIN_WINDOW_EVENTS,
     PREPROCESSING_METADATA_FILE,
     PROCESSED_DATA_DIR,
-    RAW_EVENTS_FILE,
+    RAW_DATA_DIR,
     SEED,
     TEST_DATA_FILE,
     TRAIN_DATA_FILE,
@@ -41,17 +41,24 @@ def load_sessions() -> dict[str, list[RawEvent]]:
 
     # Create an empty list for a session the first time we see its id.
     sessions: dict[str, list[RawEvent]] = defaultdict(list)
-    # Open the raw events file for reading.
-    with RAW_EVENTS_FILE.open(encoding="utf-8") as handle:
-        # Iterate through each line in the JSONL file.
-        for line in handle:
-            # Skip accidental blank lines.
-            if not line.strip():
-                continue
-            # Parse the JSON and convert it into a typed `RawEvent`.
-            event = RawEvent.from_dict(json.loads(line))
-            # Append the event to its session bucket.
-            sessions[event.session_id].append(event)
+    # Load every JSONL file in the raw data directory so synthetic data and
+    # web-captured data are automatically combined during retraining.
+    raw_files = sorted(RAW_DATA_DIR.glob("*.jsonl"))
+    if not raw_files:
+        raise FileNotFoundError(f"No raw JSONL files found in {RAW_DATA_DIR}")
+
+    # Open each raw events file and merge its sessions into the shared mapping.
+    for raw_file in raw_files:
+        with raw_file.open(encoding="utf-8") as handle:
+            # Iterate through each line in the JSONL file.
+            for line in handle:
+                # Skip accidental blank lines.
+                if not line.strip():
+                    continue
+                # Parse the JSON and convert it into a typed `RawEvent`.
+                event = RawEvent.from_dict(json.loads(line))
+                # Append the event to its session bucket.
+                sessions[event.session_id].append(event)
 
     # Make sure every session is ordered chronologically before feature encoding.
     for session_events in sessions.values():

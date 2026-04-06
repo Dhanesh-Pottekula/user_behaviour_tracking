@@ -16,6 +16,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 # Raw JSONL event logs live here.
 RAW_DATA_DIR = DATA_DIR / "raw"
+# Captured segment summaries for analytics/debugging live here.
+SEGMENTS_DATA_DIR = DATA_DIR / "segments"
 # Preprocessed NumPy training splits live here.
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 # All generated model outputs live here.
@@ -29,6 +31,10 @@ METADATA_DIR = OUTPUTS_DIR / "metadata"
 
 # Single raw JSONL file used by the current synthetic-data pipeline.
 RAW_EVENTS_FILE = RAW_DATA_DIR / "events.jsonl"
+# Raw JSONL file written by the web collector app.
+CAPTURED_EVENTS_FILE = RAW_DATA_DIR / "captured_events.jsonl"
+# Captured segment summaries written by the web collector app.
+CAPTURED_SEGMENTS_FILE = SEGMENTS_DATA_DIR / "captured_segments.jsonl"
 # Training split saved by preprocessing.
 TRAIN_DATA_FILE = PROCESSED_DATA_DIR / "train.npz"
 # Validation split saved by preprocessing.
